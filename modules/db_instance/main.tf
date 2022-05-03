@@ -89,10 +89,10 @@ resource "aws_db_instance" "this" {
     for_each = var.restore_to_point_in_time != null ? [var.restore_to_point_in_time] : []
 
     content {
-      restore_time                  = lookup(restore_to_point_in_time.value, "restore_time", null)
-      source_db_instance_identifier = lookup(restore_to_point_in_time.value, "source_db_instance_identifier", null)
-      source_dbi_resource_id        = lookup(restore_to_point_in_time.value, "source_dbi_resource_id", null)
-      use_latest_restorable_time    = lookup(restore_to_point_in_time.value, "use_latest_restorable_time", null)
+      restore_time                  = try(restore_to_point_in_time.value.restore_time, null)
+      source_db_instance_identifier = try(restore_to_point_in_time.value.source_db_instance_identifier, null)
+      source_dbi_resource_id        = try(restore_to_point_in_time.value.source_dbi_resource_id, null)
+      use_latest_restorable_time    = try(restore_to_point_in_time.value.use_latest_restorable_time, null)
     }
   }
 
@@ -103,7 +103,7 @@ resource "aws_db_instance" "this" {
       source_engine         = "mysql"
       source_engine_version = s3_import.value.source_engine_version
       bucket_name           = s3_import.value.bucket_name
-      bucket_prefix         = lookup(s3_import.value, "bucket_prefix", null)
+      bucket_prefix         = try(s3_import.value.bucket_prefix, null)
       ingestion_role        = s3_import.value.ingestion_role
     }
   }
@@ -111,9 +111,9 @@ resource "aws_db_instance" "this" {
   tags = var.tags
 
   timeouts {
-    create = lookup(var.timeouts, "create", null)
-    delete = lookup(var.timeouts, "delete", null)
-    update = lookup(var.timeouts, "update", null)
+    create = try(var.timeouts.create, null)
+    delete = try(var.timeouts.delete, null)
+    update = try(var.timeouts.update, null)
   }
 
   lifecycle {

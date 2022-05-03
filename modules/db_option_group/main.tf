@@ -18,16 +18,16 @@ resource "aws_db_option_group" "this" {
     for_each = var.options
     content {
       option_name                    = option.value.option_name
-      port                           = lookup(option.value, "port", null)
-      version                        = lookup(option.value, "version", null)
-      db_security_group_memberships  = lookup(option.value, "db_security_group_memberships", null)
-      vpc_security_group_memberships = lookup(option.value, "vpc_security_group_memberships", null)
+      port                           = try(option.value.port, null)
+      version                        = try(option.value.version, null)
+      db_security_group_memberships  = try(option.value.db_security_group_memberships, null)
+      vpc_security_group_memberships = try(option.value.vpc_security_group_memberships, null)
 
       dynamic "option_settings" {
-        for_each = lookup(option.value, "option_settings", [])
+        for_each = try(option.value.option_settings, [])
         content {
-          name  = lookup(option_settings.value, "name", null)
-          value = lookup(option_settings.value, "value", null)
+          name  = try(option_settings.value.name, null)
+          value = try(option_settings.value.value, null)
         }
       }
     }
@@ -41,7 +41,7 @@ resource "aws_db_option_group" "this" {
   )
 
   timeouts {
-    delete = lookup(var.timeouts, "delete", null)
+    delete = try(var.timeouts.delete, null)
   }
 
   lifecycle {
